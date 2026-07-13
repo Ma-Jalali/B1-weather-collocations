@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Collocations Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --sky:        #3A86C8;
+    --sky-dark:   #1E5C96;
+    --sky-light:  #E8F4FF;
+    --storm:      #243447;
+    --rain:       #7FBDE4;
+    --sun:        #F7C744;
+    --correct:    #2A9D60;
+    --wrong:      #D94F3D;
+    --bg:         #F2F7FC;
+    --white:      #FFFFFF;
+    --text:       #1C2D3E;
+    --muted:      #6B849C;
+    --border:     #C8DDED;
+    --tag-adj:    #E8F0FF;
+    --tag-adj-c:  #2952A3;
+    --tag-verb:   #FFF4E0;
+    --tag-verb-c: #9B5A00;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(160deg, #1a4a78 0%, #2f78bc 55%, #5aaee8 100%);
+    color: #fff;
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-icons {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  header h1 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  header p {
+    font-size: 1rem;
+    opacity: 0.85;
+  }
+  .level-tag {
+    display: inline-block;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.18);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 18px 0;
+  }
+
+  /* ── HOW-TO BOX ── */
+  .how-to {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    padding: 18px 22px;
+    margin-bottom: 30px;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .how-to strong { color: var(--storm); }
+  .how-to .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    border-radius: 5px;
+    padding: 3px 9px;
+    letter-spacing: 0.4px;
+  }
+  .tag.adj  { background: var(--tag-adj);  color: var(--tag-adj-c); }
+  .tag.verb { background: var(--tag-verb); color: var(--tag-verb-c); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--sky-dark);
+    margin: 34px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title span.icon { font-size: 1rem; }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(to right, var(--rain), transparent);
+  }
+
+  /* ── QUIZ CARD ── */
+  .quiz-card {
+    background: var(--white);
+    border-radius: 13px;
+    border: 1.5px solid var(--border);
+    padding: 18px 20px 16px;
+    margin-bottom: 13px;
+    transition: border-color 0.2s;
+  }
+  .quiz-card:hover { border-color: var(--rain); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .q-num {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── SENTENCE ── */
+  .sentence {
+    font-size: 1.05rem;
+    line-height: 2;
+    color: var(--text);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* The fixed noun / verb part shown in bold after the dropdown */
+  .fixed-word {
+    font-weight: 700;
+    color: var(--storm);
+  }
+
+  /* ── DROPDOWN ── */
+  select.gap {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: var(--sky-dark);
+    background: var(--sky-light);
+    border: 2px solid var(--rain);
+    border-radius: 8px;
+    padding: 5px 28px 5px 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%233A86C8' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  select.gap:focus { border-color: var(--sky-dark); }
+  select.gap.correct {
+    background-color: #d6f5e6;
+    border-color: var(--correct);
+    color: #1a6b3c;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%232A9D60' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  select.gap.wrong {
+    background-color: #fde8e6;
+    border-color: var(--wrong);
+    color: #8b1a1a;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23D94F3D' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    display: none;
+    margin-top: 9px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 7px;
+    line-height: 1.5;
+  }
+  .feedback.show-correct { background: #d6f5e6; color: #155c35; display: block; }
+  .feedback.show-wrong   { background: #fde8e6; color: #7a1a10; display: block; }
+  .feedback.show-empty   { background: #fff4cc; color: #7a5800; display: block; }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  button {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 28px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.2px;
+  }
+  button:hover  { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-check {
+    background: var(--sky-dark);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(30,92,150,0.35);
+  }
+  .btn-check:hover { box-shadow: 0 6px 20px rgba(30,92,150,0.45); }
+  .btn-reset {
+    background: var(--white);
+    color: var(--sky-dark);
+    border: 2px solid var(--border);
+  }
+
+  /* ── SCORE PANEL ── */
+  #score-panel {
+    display: none;
+    margin-top: 30px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 6px 28px rgba(30,92,150,0.12);
+    padding: 28px 24px;
+    text-align: center;
+  }
+  #score-panel h2 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .score-big {
+    font-family: 'Nunito', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--sky-dark);
+    line-height: 1;
+  }
+  .score-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin: 6px 0 16px;
+  }
+  .score-msg {
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--sky-light);
+    border-radius: 10px;
+    padding: 13px 18px;
+    line-height: 1.6;
+  }
+
+  /* ── REFERENCE TABLE ── */
+  .ref-section {
+    margin-top: 50px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+  }
+  .ref-header {
+    background: linear-gradient(135deg, var(--sky-dark), var(--sky));
+    color: #fff;
+    padding: 18px 24px;
+  }
+  .ref-header h2 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin-bottom: 3px;
+  }
+  .ref-header p {
+    font-size: 0.87rem;
+    opacity: 0.85;
+  }
+  table.ref-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table.ref-table thead tr {
+    background: var(--sky-light);
+  }
+  table.ref-table th {
+    padding: 11px 16px;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--sky-dark);
+    border-bottom: 1.5px solid var(--border);
+  }
+  table.ref-table td {
+    padding: 12px 16px;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    border-bottom: 1px solid #e8eff6;
+    vertical-align: top;
+  }
+  table.ref-table tr:last-child td { border-bottom: none; }
+  table.ref-table tr:nth-child(even) td { background: #f8fbff; }
+  .colloc-word {
+    font-weight: 700;
+    color: var(--sky-dark);
+    white-space: nowrap;
+  }
+  .colloc-type {
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 520px) {
+    .sentence { font-size: 0.97rem; }
+    select.gap { font-size: 0.9rem; }
+    .score-big { font-size: 3rem; }
+    table.ref-table th, table.ref-table td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="header-icons">🌦️</span>
+  <h1>Weather Collocations</h1>
+  <p>Choose the correct word to complete each weather expression</p>
+  <span class="level-tag">Intermediate · B1</span>
+</header>
+
+<main>
+
+  <div class="how-to">
+    <strong>How to do this quiz:</strong> Each sentence has a blank. Choose the correct word from the drop-down menu. The other word in the collocation is shown in <strong>bold</strong> after the menu. When you finish, click <strong>Check My Answers</strong>.<br>
+    <div class="legend">
+      <span class="tag adj">ADJ + NOUN</span> — choose the right adjective
+      <span class="tag verb">VERB + NOUN</span> — choose the right verb
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1: Rain ══ -->
+  <div class="section-title"><span class="icon">🌧️</span> Rain</div>
+
+  <!-- Q1: light/strong shower — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 1</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      Don't worry about an umbrella — it's only a
+      <select class="gap" data-answer="light">
+        <option value="">▾ choose</option>
+        <option>light</option>
+        <option>strong</option>
+      </select>
+      <span class="fixed-word">shower.</span>
+      You won't get very wet.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q2: heavy/big rain — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 2</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      We had to stay inside all afternoon because of the
+      <select class="gap" data-answer="heavy">
+        <option value="">▾ choose</option>
+        <option>heavy</option>
+        <option>big</option>
+      </select>
+      <span class="fixed-word">rain.</span>
+      The streets were completely flooded.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q3: get/turn wet — VERB+ADJ -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 3</span>
+      <span class="tag verb">VERB + ADJ</span>
+    </div>
+    <div class="sentence">
+      I forgot my umbrella and
+      <select class="gap" data-answer="got">
+        <option value="">▾ choose</option>
+        <option>got</option>
+        <option>turned</option>
+      </select>
+      <span class="fixed-word">wet</span>
+      walking to the bus stop.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ══ SECTION 2: Temperature ══ -->
+  <div class="section-title"><span class="icon">🌡️</span> Temperature</div>
+
+  <!-- Q4: freezing/icy temperatures — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 4</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      We couldn't go outside for long because of the
+      <select class="gap" data-answer="freezing">
+        <option value="">▾ choose</option>
+        <option>freezing</option>
+        <option>icy</option>
+      </select>
+      <span class="fixed-word">temperatures.</span>
+      It was minus eight degrees!
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q5: mild/soft weather — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 5</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      We had
+      <select class="gap" data-answer="mild">
+        <option value="">▾ choose</option>
+        <option>mild</option>
+        <option>soft</option>
+      </select>
+      <span class="fixed-word">weather</span>
+      in March this year — warm enough to sit outside for coffee.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q6: degrees Celsius / degrees Centigrade — NOUN+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 6</span>
+      <span class="tag adj">NOUN + NOUN</span>
+    </div>
+    <div class="sentence">
+      The weather app says it will be 35
+      <select class="gap" data-answer="degrees">
+        <option value="">▾ choose</option>
+        <option>degrees</option>
+        <option>levels</option>
+      </select>
+      <span class="fixed-word">Celsius</span>
+      tomorrow — very hot for this time of year.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ══ SECTION 3: Wind ══ -->
+  <div class="section-title"><span class="icon">💨</span> Wind</div>
+
+  <!-- Q7: blow a gale / blow a wind — VERB+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 7</span>
+      <span class="tag verb">VERB + NOUN</span>
+    </div>
+    <div class="sentence">
+      The sailing trip was cancelled because it was starting to
+      <select class="gap" data-answer="blow">
+        <option value="">▾ choose</option>
+        <option>blow</option>
+        <option>make</option>
+      </select>
+      <span class="fixed-word">a gale</span>
+      — the waves were huge.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q8: light/calm breeze — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 8</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      It was a beautiful day — sunny with a
+      <select class="gap" data-answer="light">
+        <option value="">▾ choose</option>
+        <option>light</option>
+        <option>calm</option>
+      </select>
+      <span class="fixed-word">breeze.</span>
+      Perfect for a picnic.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ══ SECTION 4: Storms & Snow ══ -->
+  <div class="section-title"><span class="icon">⛈️</span> Storms &amp; Snow</div>
+
+  <!-- Q9: thunderstorm / lightning storm — NOUN (choose right noun) -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 9</span>
+      <span class="tag adj">NOUN CHOICE</span>
+    </div>
+    <div class="sentence">
+      Last night there was a loud
+      <select class="gap" data-answer="thunderstorm">
+        <option value="">▾ choose</option>
+        <option>thunderstorm</option>
+        <option>lightning storm</option>
+      </select>
+      <span class="fixed-word">—</span>
+      the thunder woke everyone up at 3 in the morning.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q10: heavy/big snowfall — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 10</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      Schools were closed because of
+      <select class="gap" data-answer="heavy">
+        <option value="">▾ choose</option>
+        <option>heavy</option>
+        <option>big</option>
+      </select>
+      <span class="fixed-word">snowfall</span>
+      — over 40 centimetres fell in one night.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- ══ SECTION 5: Heat & Dry ══ -->
+  <div class="section-title"><span class="icon">☀️</span> Heat &amp; Dry</div>
+
+  <!-- Q11: dry/empty heat — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 11</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      The desert has a
+      <select class="gap" data-answer="dry">
+        <option value="">▾ choose</option>
+        <option>dry</option>
+        <option>empty</option>
+      </select>
+      <span class="fixed-word">heat</span>
+      — it is very hot, but there is almost no humidity.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- Q12: dry/empty weather — ADJ+NOUN -->
+  <div class="quiz-card">
+    <div class="q-meta">
+      <span class="q-num">Question 12</span>
+      <span class="tag adj">ADJ + NOUN</span>
+    </div>
+    <div class="sentence">
+      The farmers need rain — there has been
+      <select class="gap" data-answer="dry">
+        <option value="">▾ choose</option>
+        <option>dry</option>
+        <option>empty</option>
+      </select>
+      <span class="fixed-word">weather</span>
+      for almost two months now.
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="btn-row">
+    <button class="btn-check" onclick="checkAll()">✔ Check My Answers</button>
+    <button class="btn-reset" onclick="resetAll()">↺ Start Again</button>
+  </div>
+
+  <!-- SCORE -->
+  <div id="score-panel">
+    <h2>Your Score</h2>
+    <div class="score-big" id="score-num">—</div>
+    <div class="score-sub">out of 12 questions</div>
+    <div class="score-msg" id="score-msg"></div>
+  </div>
+
+  <!-- ══ REFERENCE TABLE ══ -->
+  <div class="ref-section" style="margin-top:50px;">
+    <div class="ref-header">
+      <h2>📚 More Weather Collocations to Know</h2>
+      <p>Study these extra collocations — they all follow adjective + noun patterns</p>
+    </div>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Collocation</th>
+          <th>Type</th>
+          <th>Meaning &amp; Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="colloc-word">strong wind</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>A wind that is very powerful. <em>A strong wind blew the chairs off the balcony.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">thick fog</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Fog so dense that you cannot see well. <em>The flight was delayed because of thick fog at the airport.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">bright sunshine</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Strong, clear sunlight. <em>We had bright sunshine all weekend — perfect for the beach.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">scattered showers</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Short periods of rain in different places, not everywhere at the same time. <em>The forecast says scattered showers in the afternoon.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">clear skies</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Sky with no clouds. <em>We had clear skies all morning, so we could see the mountains.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">overcast sky</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>A sky completely covered with grey clouds. <em>It was an overcast sky all day, but it didn't actually rain.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">biting cold</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Cold that feels very sharp and uncomfortable on your skin. <em>There was a biting cold wind on the mountain top.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">boiling hot</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + ADJ</span></td>
+          <td>Extremely hot (informal). <em>It was boiling hot in the city — over 40 degrees!</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">patchy fog</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>Fog that appears in some areas but not others. <em>Drive carefully — there is patchy fog on the motorway this morning.</em></td>
+        </tr>
+        <tr>
+          <td><span class="colloc-word">tropical storm</span></td>
+          <td><span class="tag adj" style="font-size:0.7rem;">ADJ + NOUN</span></td>
+          <td>A very strong storm that forms over warm ocean water near the equator. <em>A tropical storm hit the coast and destroyed many homes.</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer style="margin-top:36px;">Weather Collocations Quiz &nbsp;·&nbsp; ESL Classroom Activity &nbsp;·&nbsp; Intermediate (B1)<br>Designed by Ma. Jalali</footer>
+
+</main>
+
+<script>
+  const ANSWERS = {
+    1:  { key: 'light',         label: '"light shower" ✓ — We say a <em>light</em> shower (not <em>strong</em>).' },
+    2:  { key: 'heavy',         label: '"heavy rain" ✓ — We say <em>heavy</em> rain (not <em>big</em> rain).' },
+    3:  { key: 'got',           label: '"got wet" ✓ — We say <em>get</em> wet (not <em>turn</em> wet — "turn" is used for colours, e.g. "the sky turned grey").' },
+    4:  { key: 'freezing',      label: '"freezing temperatures" ✓ — We say <em>freezing</em> temperatures (not <em>icy</em> temperatures).' },
+    5:  { key: 'mild',          label: '"mild weather" ✓ — We say <em>mild</em> weather (not <em>soft</em> weather).' },
+    6:  { key: 'degrees',       label: '"degrees Celsius" ✓ — We say <em>degrees</em> Celsius (not <em>levels</em> Celsius).' },
+    7:  { key: 'blow',          label: '"blow a gale" ✓ — The correct verb is <em>blow</em> (not <em>make</em> a gale).' },
+    8:  { key: 'light',         label: '"light breeze" ✓ — We say a <em>light</em> breeze (not a <em>calm</em> breeze).' },
+    9:  { key: 'thunderstorm',  label: '"thunderstorm" ✓ — This is the natural word for a storm with thunder and lightning.' },
+    10: { key: 'heavy',         label: '"heavy snowfall" ✓ — We say <em>heavy</em> snowfall (not <em>big</em> snowfall).' },
+    11: { key: 'dry',           label: '"dry heat" ✓ — We say <em>dry</em> heat (not <em>empty</em> heat).' },
+    12: { key: 'dry',           label: '"dry weather" ✓ — We say <em>dry</em> weather (not <em>empty</em> weather).' }
+  };
+
+  function checkAll() {
+    const cards = document.querySelectorAll('.quiz-card');
+    let correct = 0;
+    let answered = 0;
+
+    cards.forEach((card, i) => {
+      const qNum = i + 1;
+      const sel  = card.querySelector('select.gap');
+      const fb   = card.querySelector('.feedback');
+      const data = ANSWERS[qNum];
+
+      sel.classList.remove('correct', 'wrong');
+      fb.className = 'feedback';
+      fb.innerHTML = '';
+
+      const chosen = sel.value;
+
+      if (!chosen) {
+        fb.innerHTML = '⚠ Please make a choice before checking.';
+        fb.className = 'feedback show-empty';
+        return;
+      }
+
+      answered++;
+
+      if (chosen === data.key) {
+        correct++;
+        sel.classList.add('correct');
+        fb.innerHTML = '✓ Correct! ' + data.label;
+        fb.className = 'feedback show-correct';
+      } else {
+        sel.classList.add('wrong');
+        fb.innerHTML = '✗ Not quite. The correct answer: ' + data.label;
+        fb.className = 'feedback show-wrong';
+      }
+    });
+
+    // Score panel
+    const panel = document.getElementById('score-panel');
+    panel.style.display = 'block';
+    document.getElementById('score-num').textContent = correct + ' / 12';
+
+    const pct = Math.round((correct / 12) * 100);
+    let msg = '';
+    if (pct === 100)    msg = '🌟 Perfect! You know all the weather collocations. Excellent work!';
+    else if (pct >= 80) msg = '☀️ Great job! You got most of them right. Review any incorrect ones above.';
+    else if (pct >= 60) msg = '🌤 Good effort! Read the feedback above and try again to improve.';
+    else if (pct >= 40) msg = '🌧 Keep practising! Study the reference table below — it will help you a lot.';
+    else                msg = '⛈ Don\'t give up! Read the feedback carefully and try the quiz again.';
+
+    document.getElementById('score-msg').textContent = msg;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function resetAll() {
+    document.querySelectorAll('select.gap').forEach(s => {
+      s.value = '';
+      s.classList.remove('correct', 'wrong');
+    });
+    document.querySelectorAll('.feedback').forEach(f => {
+      f.innerHTML = '';
+      f.className = 'feedback';
+    });
+    document.getElementById('score-panel').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
